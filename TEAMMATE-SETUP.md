@@ -227,4 +227,37 @@ Claude will:
 
 ---
 
+## 🤖 Optional — Full auto-sync (runs every 10 min in background)
+
+If you want the sync to happen WITHOUT you ever saying anything — a background job runs every 10 min, fetches new ended meetings, matches CRM companies, and posts meeting activities + transcript notes.
+
+**Action items + structured summaries** still get added the next time you open Claude Code and say `review auto-synced meetings` (LLM work).
+
+Install:
+
+```bash
+bash ~/.claude/skills/lark-to-crm/scripts/install_auto_sync.sh
+```
+
+Check it's running:
+
+```bash
+launchctl list | grep lark-to-crm
+tail -f ~/.claude/skills/lark-to-crm/.state/auto-sync.log
+```
+
+Uninstall:
+
+```bash
+bash ~/.claude/skills/lark-to-crm/scripts/install_auto_sync.sh uninstall
+```
+
+**Ambiguous matches** (e.g. company name has 3 CRM hits) are queued to `.state/pending-review.json` — Claude will surface them next time you open it.
+
+**Caveat**: only runs while your Mac is on + awake. Combine with `day-end sync` to catch anything missed.
+
+Windows/Linux: use `cron` instead — add `*/10 * * * * python3 ~/.claude/skills/lark-to-crm/scripts/auto_sync.py` to your crontab.
+
+---
+
 Made with 🦞 by Candy.

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.chatdaddy.lark-to-crm</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <!-- replace YOUR_HOME with your actual home dir (the install script handles this) -->
+        <string>cd YOUR_HOME/.claude/skills/lark-to-crm &amp;&amp; /usr/bin/env python3 scripts/auto_sync.py</string>
+    </array>
+
+    <!-- Run every 10 minutes -->
+    <key>StartInterval</key>
+    <integer>600</integer>
+
+    <!-- Run once at load (so first scan happens immediately) -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Don't run if previous invocation is still in flight -->
+    <key>AbandonProcessGroup</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>YOUR_HOME/.claude/skills/lark-to-crm/.state/auto-sync.stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>YOUR_HOME/.claude/skills/lark-to-crm/.state/auto-sync.stderr.log</string>
+
+    <key>WorkingDirectory</key>
+    <string>YOUR_HOME/.claude/skills/lark-to-crm</string>
+</dict>
+</plist>

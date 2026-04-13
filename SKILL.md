@@ -127,14 +127,37 @@ On day-end sync, report missed events clearly: "You had 6 meetings today, 4 sync
 - **Some events have no VC meeting** (phone calls, Zoom, external) — handle gracefully, skip transcript.
 - **CRM PATCH/DELETE**: at time of writing, `/api/activities` and `/api/notes` only support POST/GET. If `PATCH ?id=X` or `DELETE ?id=X` 405s, the endpoint hasn't been deployed yet — fall back to append-only (POST a corrected summary, leave the original). Ask CRM owner to deploy the PATCH/DELETE routes.
 
+## Auto-sync (background polling)
+
+When a launchd / cron job runs `scripts/auto_sync.py` every ~10 min, it:
+- Fetches today's confirmed+ended meetings
+- Skips ones already in `.state/synced-events.json`
+- Matches CRM company (unambiguous only — ambiguous go to `.state/pending-review.json`)
+- Posts meeting activity (with `[lark_event_id: ...]`) + transcript archive note
+- Flags `summary_pending: true` in state — summaries + action-item tasks are added when the user next opens Claude Code and says "review auto-synced meetings" (those require LLM)
+
+When the user opens Claude Code, check `.state/synced-events.json` for entries with `summary_pending: true`. For each:
+1. Read transcript from `.state/transcripts/{eid}.txt`
+2. Generate structured summary
+3. PATCH the existing meeting activity description to prepend the structured summary before the `[lark_event_id: ...]` marker
+4. POST a pinned summary note on the same deal
+5. Extract `[{owner_name}]` action items → POST task activities
+6. Update state: remove `summary_pending`, record summary_note_id + task_activity_ids
+7. Report to user what was enriched
+
+When the user asks about `pending-review.json`, show the ambiguous/no-match events and ask for disposition per event (which CRM id, or create new, or skip).
+
 ## Files
 
-- `SETUP.md` — first-time Lark app + OAuth setup + per-user config creation (give to new users)
+- `SETUP.md` — first-time Lark app + OAuth setup + per-user config creation (also-portable long form)
+- `TEAMMATE-SETUP.md` — for-dummies teammate onboarding (short form, shared Lark app)
 - `config/user.example.json` — template for `config/user.json` (not committed)
-- `config/oauth_url.template.txt` — OAuth authorize URL template (fill in app_id)
-- `scripts/fetch_meetings.py` — pull events + transcripts from Lark
-- `scripts/sync_to_crm.py` — write activities + notes to CRM (reference implementation)
+- `config/oauth_url.template.txt` — OAuth authorize URL template
+- `scripts/fetch_meetings.py` — pull events + transcripts from Lark (interactive)
 - `scripts/oauth_helper.py` — exchange OAuth code for tokens
+- `scripts/auto_sync.py` — background polling sync (non-interactive, cron-friendly)
+- `scripts/install_auto_sync.sh` — install/uninstall launchd agent (macOS)
+- `launchd/com.chatdaddy.lark-to-crm.plist` — launchd plist template
 - `.gitignore` — excludes `config/user.json`, `.state/`, transcripts
 
 ## Key endpoints reference
