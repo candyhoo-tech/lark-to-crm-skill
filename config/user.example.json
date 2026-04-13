@@ -1,0 +1,8 @@
+{
+  "owner_name": "YourFirstName",
+  "lark_app_id": "cli_xxxxxxxxxxxxxxxx",
+  "lark_app_secret": "xxxxxxxxxxxxxxxxxxxxxxxx",
+  "lark_email": "firstname.lastname@chatdaddy.tech",
+  "crm_api_key": "crm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "crm_base_url": "https://chatdaddy-crm.vercel.app"
+}
