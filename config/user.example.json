@@ -4,5 +4,6 @@
   "lark_app_secret": "xxxxxxxxxxxxxxxxxxxxxxxx",
   "lark_email": "firstname.lastname@chatdaddy.tech",
   "crm_api_key": "crm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "crm_base_url": "https://chatdaddy-crm.vercel.app"
+  "crm_base_url": "https://chatdaddy-crm.vercel.app",
+  "lark_user_open_id": "ou_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 }

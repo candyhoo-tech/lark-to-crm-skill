@@ -220,13 +220,29 @@ def get_deal_for_company(cfg, company_id):
 
 # ─── Main loop ──────────────────────────────────────────────────
 
-def is_client_meeting(e):
+INTERNAL_KEYWORDS = [
+    "weekly", "hq morning", "lunch", "standup", "team meet", "飞虎",
+    "product next-gen", "everyday ask", "sales training", "number reporting",
+    "bni", "afternoon meet", "user hub", "active trial", "trial account",
+    "sales team", "month lead", "update month", "renewal team", "zolo mart",
+    "marketing weekly", "team sync", "business meet",
+]
+
+
+def is_client_meeting(e, owner_open_id=None):
     if e.get("status") != "confirmed": return False
     s = (e.get("summary") or "").strip()
     if not s: return False
     low = s.lower()
     if low in ("block", "blok", "blocked", "lunch", "client meeting block"): return False
     if low.startswith("block") and len(low) < 12: return False
+    # Internal-meeting keyword filter
+    if any(k in low for k in INTERNAL_KEYWORDS): return False
+    # Organizer filter: only sync meetings the user organized (if owner_open_id provided)
+    if owner_open_id:
+        org = (e.get("event_organizer") or {}).get("user_id")
+        if org and org != owner_open_id:
+            return False
     return True
 
 
@@ -247,8 +263,9 @@ def run_once():
     end_ts = int(now.timestamp())
 
     events = list_events(cal_id, start_ts, end_ts, user_token)
-    ended = [e for e in events if is_client_meeting(e) and int(e["end_time"]["timestamp"]) < int(now.timestamp())]
-    log(f"Scan: {len(ended)} confirmed+ended meetings today")
+    owner_open_id = cfg.get("lark_user_open_id")  # optional; if set, filters out others' meetings
+    ended = [e for e in events if is_client_meeting(e, owner_open_id) and int(e["end_time"]["timestamp"]) < int(now.timestamp())]
+    log(f"Scan: {len(ended)} confirmed+ended client meetings today")
 
     synced = load_json(SYNCED_PATH, {})
     pending = load_json(PENDING_PATH, {})
